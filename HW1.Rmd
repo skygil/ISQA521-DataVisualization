@@ -1,0 +1,133 @@
+---
+title: "HW1"
+author: "Jordan Hilton"
+date: "April 2, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(lessR)
+library(ggplot2)
+library(tidyverse)
+```
+
+
+# 1 Bar Chart
+
+Let's load the data:
+
+```{r barchartload}
+d <- rd("Employee", format="lessR")
+```
+
+## a.
+
+Here's a barplot of the number of employees in each department using the base R plot:
+
+```{r barplot}
+barplot(table(d$Dept))
+```
+
+## b.
+
+Here's the same data in table form:
+
+```{r table}
+table(d$Dept)
+```
+
+## c.
+
+Here's the same chart in lessR:
+
+```{r barchart}
+BarChart(Dept, quiet=TRUE)
+```
+
+and ggplot2:
+
+```{r ggplot2barchart}
+ggplot(d, aes(Dept))+geom_bar()
+```
+
+
+## d.
+
+Here's the lessR 1d bubble plot:
+
+```{r bubbleplot}
+Plot(Dept, quiet=TRUE)
+```
+
+## e.
+
+The bubble chart is more compact and there could be applications where showing relative size as an area as opposed to a length is useful. The bar chart is more readable and more common, so it will make more sense to most readers.
+
+## h. (no f/g?)
+
+Here's the bar chart with proportions instead of counts:
+
+```{r barchart2}
+BarChart(Dept, quiet=TRUE, stat.x="proportion")
+```
+
+## i.
+
+With horizontal bars:
+
+```{r barchart3}
+BarChart(Dept, quiet=TRUE, horiz=TRUE)
+```
+
+## j.
+
+Now providing a title and custom axis lables:
+
+```{r barchart4}
+BarChart(Dept, quiet=TRUE, xlab="Our Cool Departments", ylab="Awesome Employee Count", main="Employment at our Tubular Company")
+```
+
+# 2. R Factors
+
+Let's load the survey data:
+
+```{r surveyload}
+surveydata<-rd("460S14.csv", quiet=TRUE)
+head(surveydata)
+length(surveydata$Learn_1)
+```
+
+## a. 
+
+We can see from the length of the first column that there are 31 rows of data, so that's probably the number of student responses we got.
+
+## b.
+
+The four variables we're discussing are Past_1, Past_2, Past_3, and Past_4
+
+## c.
+
+```{r checknas}
+sum(is.na(surveydata))
+sum(is.na(surveydata$Past_1))
+sum(is.na(surveydata$Past_2))
+sum(is.na(surveydata$Past_3))
+sum(is.na(surveydata$Past_4))
+```
+
+We can see that there are 7 total missing values in the dataset, but no missing values for any of these 4 questions. The missing values are in the columns "Past2_1" and "Learn2_1" so I"m guessing that those questions are either optional or only presented under some circumstances.
+
+## d.
+
+Here are the first 3 rows of data for our four variables:
+
+```{r first3}
+head(cbind(surveydata$Past_1, surveydata$Past_2, surveydata$Past_3,surveydata$Past_4),3)
+```
+
+## e.
+
+It looks like the values are recorded 
+
+
