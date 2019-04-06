@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(lessR)
 library(ggplot2)
 library(tidyverse)
+library(waffle)
 ```
 
 
@@ -20,6 +21,8 @@ Let's load the data:
 ```{r barchartload}
 d <- rd("Employee", format="lessR")
 ```
+
+\pagebreak
 
 ## a.
 
@@ -37,6 +40,8 @@ Here's the same data in table form:
 table(d$Dept)
 ```
 
+\pagebreak
+
 ## c.
 
 Here's the same chart in lessR:
@@ -45,12 +50,15 @@ Here's the same chart in lessR:
 BarChart(Dept, quiet=TRUE)
 ```
 
+\pagebreak
+
 and ggplot2:
 
 ```{r ggplot2barchart}
 ggplot(d, aes(Dept))+geom_bar()
 ```
 
+\pagebreak
 
 ## d.
 
@@ -64,6 +72,8 @@ Plot(Dept, quiet=TRUE)
 
 The bubble chart is more compact and there could be applications where showing relative size as an area as opposed to a length is useful. The bar chart is more readable and more common, so it will make more sense to most readers.
 
+\pagebreak
+
 ## h. (no f/g?)
 
 Here's the bar chart with proportions instead of counts:
@@ -71,6 +81,8 @@ Here's the bar chart with proportions instead of counts:
 ```{r barchart2}
 BarChart(Dept, quiet=TRUE, stat.x="proportion")
 ```
+
+\pagebreak
 
 ## i.
 
@@ -80,12 +92,34 @@ With horizontal bars:
 BarChart(Dept, quiet=TRUE, horiz=TRUE)
 ```
 
+\pagebreak
+
 ## j.
 
 Now providing a title and custom axis lables:
 
 ```{r barchart4}
 BarChart(Dept, quiet=TRUE, xlab="Our Cool Departments", ylab="Awesome Employee Count", main="Employment at our Tubular Company")
+```
+
+\pagebreak
+
+## k.
+
+A ring chart, using lessR:
+
+```{r ringchart}
+PieChart(Dept, hole=.5, quiet=TRUE)
+```
+
+\pagebreak
+
+## l.
+
+A waffle chart, using the "waffle" package as from the code examples:
+
+```{r wafflechart}
+waffle(table(d$Dept))
 ```
 
 # 2. R Factors
@@ -128,6 +162,64 @@ head(cbind(surveydata$Past_1, surveydata$Past_2, surveydata$Past_3,surveydata$Pa
 
 ## e.
 
-It looks like the values are recorded 
+It looks like the responses are recorded as integers 1-4, presumably with 1 corresponding to "not at all" and 4 corresponding to "cannot remember"
+
+## f.
+
+Let's convert these four variables to factors, and I'll use head to show the results for one variable:
+
+```{r convertfactor}
+surveydata$Past_1 = factor(surveydata$Past_1, levels=1:4, labels=c("Not at all", "Some", "A fair amount", "Can't remember"))
+surveydata$Past_2 = factor(surveydata$Past_2, levels=1:4, labels=c("Not at all", "Some", "A fair amount", "Can't remember"))
+surveydata$Past_3 = factor(surveydata$Past_3, levels=1:4, labels=c("Not at all", "Some", "A fair amount", "Can't remember"))
+surveydata$Past_4 = factor(surveydata$Past_4, levels=1:4, labels=c("Not at all", "Some", "A fair amount", "Can't remember"))
+head(surveydata$Past_1, 3)
+```
+
+\pagebreak
+
+## g.
+
+A bar chart for the t-test survey question:
+
+```{r tbarchart}
+BarChart(Past_1, quiet=TRUE, data=surveydata, xlab="Responses to t-test question", ylab="Count of responses")
+```
+
+## h.
+
+Create a new, reordered factor variable, just for the t-test question: (I had to reload the data first in order to recreate the factor)
+
+```{r reordered}
+surveydata<-rd("460S14.csv", quiet=TRUE)
+reordered = factor(surveydata$Past_1, levels=c(4,1,2,3), labels=c("Can't remember","Not at all", "Some", "A fair amount"), ordered=TRUE)
+```
+
+\pagebreak
+
+## i.
+
+Chart the reordered factor variable: it's interesting how the default coloring changes for ordered factors in lessR
+
+```{r tbarchart2}
+BarChart(reordered, quiet=TRUE, data=reordered, xlab="Responses to t-test question", ylab="Count of responses")
+```
+
+## j.
+
+Let's see if there are any cases where nobody picked one of the options for one of these 4 questions:
+
+```{r}
+table(surveydata$Past_1)
+table(surveydata$Past_2)
+table(surveydata$Past_3)
+table(surveydata$Past_4)
+```
+
+It looks like at least 2 people picked each option for all of these 4 questions. If we had missing cases, what we could do is create a factor with a level for the missing response, which would then show up as having 0 instances. For example if there was a 5th option that nobody had picked, we might run this pseudocode which I'll commment out so it doesn't break my RMD:
+
+```{r}
+## missingvalues = factor(surveyresponse, levels=1:5, labels=c("Can't remember","Not at all", "Some", "A fair amount", "Fake Variable"))
+```
 
 
