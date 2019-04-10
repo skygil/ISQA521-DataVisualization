@@ -13,6 +13,7 @@ library(tidyverse)
 library(waffle)
 ```
 
+I'll be doing these homeworks in RMDs and knitting to PDF- let me know if there's any problem with formatting you'd like me to fix.
 
 # 1 Bar Chart
 
