@@ -17,7 +17,7 @@ library(waffle)
 Let's load our data:
 
 ```{r barchartload}
-d <- rd("Cars93.csv")
+d <- rd("Cars93.csv", quiet=TRUE)
 ```
 
 # 1 Bar Chart
@@ -227,5 +227,137 @@ Plot(MPGcity, quiet=TRUE)
 
 The full VBS plot presents the same distribution in so many different ways that you can get a lot more information from it- for instance, the identification of the extremity of the 3 outliers on the right, the density of the points around the mean, and how neatly most of the distribution fits within the range of the box plot. This level of detail also makes it much busier and more difficult to read- the important thing to get out of looking at this distribution is just that you have 3 outliers on the right and a bunch of points clumped around the mean, which the histogram communicates just as well and much more simply.
 
+\pagebreak
+
+# 3. Scatterplot
+
+## a.
+
+Here's the scatterplot for city and highway MPG in lessR:
+
+```{r lessRscatter}
+Plot(MPGcity, MPGhiway, quiet=TRUE)
+```
+
+\pagebreak
+
+and the same thing in ggplot2:
+
+```{r ggscatter}
+ggplot(d, aes(MPGcity, MPGhiway)) + geom_point()
+```
+
+\pagebreak
+
+## b.
+
+Here's the trellis for the same plot split by transmission. I'm going to first convert the "Manual" variable into a factor as described in assignment 1.
+
+```{r convertvariable}
+d$Manual <- factor(d$Manual, levels=0:1, labels=c("Automatic", "Manual"))
+```
+
+The plot in lessR:
+
+```{r lessRtrellisscatter}
+Plot(MPGcity, MPGhiway, by1=Manual, n.col=2, quiet=TRUE)
+```
+
+\pagebreak
+
+and in ggplot2:
+
+```{r ggtrellisscatter}
+ggplot(d, aes(MPGcity, MPGhiway)) + geom_point() + facet_grid(cols=vars(Manual))
+```
+
+\pagebreak
+
+Now let's add ellipses to all of these plots:
+
+```{r lessRtrellisscatterellipse}
+Plot(MPGcity, MPGhiway, by1=Manual, n.col=2, ellipse=TRUE,  quiet=TRUE)
+```
+
+\pagebreak
+
+and ggplot2:
+
+```{r ggtrellisscatterellipse}
+ggplot(d, aes(MPGcity, MPGhiway)) + geom_point() + facet_grid(cols=vars(Manual))+stat_ellipse()
+```
+
+\pagebreak
+
+## c.
+
+Now we're adding nonlinear and linear fit lines to the ggplot2 scatterplot, along with a 95% CI:
+
+```{r ggscatterv2}
+ggplot(d, aes(MPGcity, MPGhiway)) + geom_point()+geom_smooth()+geom_smooth(method=lm, color="green", se=TRUE)
+```
+
+\pagebreak
+
+## d.
+
+Here are the scatter plots for city MPG for each source, including the mean, in lessR:
+
+```{r lessRscatter3}
+Plot(Source, MPGcity, quiet=TRUE)
+```
+
+\pagebreak
+
+and in ggplot2. I had trouble drawing the horizontal line so I've just marked the mean in red with a larger point:
 
 
+```{r ggoverlaidmeans}
+ggplot(d, aes(Source, MPGcity))+geom_point()+stat_summary(fun.y="mean",color="red", geom="point", size=3)
+```
+
+\pagebreak
+
+## e.
+
+Here's the lessR bubble plot for source of car by frequency of drive train:
+
+```{r bubbleplot}
+Plot(Source, DriveTrain)
+```
+
+\pagebreak
+
+and in ggplot2:
+
+```{r ggdotplot}
+ggplot(d, aes(Source, DriveTrain)) + geom_count() +
+  scale_size_area()
+```
+
+\pagebreak
+
+#4. Colors
+
+## a. Here's a bar chart of number of cylinders where I'm using qualitative HCL colors with adjusted luminosity:
+```{r hclcolors}
+bc(Cylinders, fill=getColors(l=60), quiet=TRUE)
+```
+
+\pagebreak
+
+## b.
+
+Here are progressive colors with a blue hue:
+
+```{r hclcolors2}
+bc(Cylinders, fill=getColors("blues"))
+```
+
+\pagebreak
+## c.
+
+Here's the same chart with the base R heat map color scheme:
+```{r hclcolors3}
+bc(Cylinders, fill=getColors("heat"), quiet=TRUE)
+```
