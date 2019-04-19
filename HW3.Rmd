@@ -1,0 +1,210 @@
+---
+title: "HW3"
+author: "Jordan Hilton"
+date: "April 16, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(lessR)
+library(ggplot2)
+library(rnaturalearth)
+library(rgeos)
+library(tidyverse)
+library(sf)
+library(ggrepel)
+library(reshape2)
+```
+
+Let's load our data. I'm going to assign the mtcars dataset to "d" so that the lessR defaults will work.
+
+```{r mtcarsload}
+d <- mtcars
+```
+
+# 1 Categorical with continuous variables.
+
+## a.
+
+Here's the head of our data:
+
+```{r head}
+head(d)
+```
+
+## b.
+
+It looks like MPG, displacement, horsepower, rear axle ratio, weight, and "qsec" are continuous, while the number of cylinders, the engine shape "vs", the transmission "am", the number of forward gears, and the number of carburetors are categorical. All of the data are currently of type double, so let's go ahead and transform the categorical variables to factors now.
+
+```{r transformcats}
+d<-Transform(cyl=factor(cyl), quiet=TRUE)
+d<-Transform(vs=factor(vs), quiet=TRUE)
+d<-Transform(am=factor(am), quiet=TRUE)
+d<-Transform(carb=factor(carb), quiet=TRUE)
+```
+
+\pagebreak
+## c.
+
+Here's a box plot for mpg:
+
+```{r mpgboxplot}
+BoxPlot(mpg, quiet=TRUE)
+```
+
+\pagebreak
+
+## d.
+Here's a box plot for mpg at each level of cyl:
+
+```{r boxmpgcyl}
+BoxPlot(mpg, by1=cyl, quiet=TRUE)
+```
+
+\pagebreak
+## e.
+
+Here's a VBS plot of mpg:
+
+```{r vbsmpg}
+Plot(mpg,  quiet=TRUE)
+```
+
+\pagebreak
+## f.
+
+Here's a VBS plot of mpg at each level of cyl:
+
+```{r vbsmpgcyl}
+Plot(mpg, by1=cyl, quiet=TRUE)
+```
+
+## g.
+
+The VBS plot includes the location of specific points with color coding so that we can more easily hunt outliers (in this example you're immediately curious what that 10.4 MPG monstrosity is....I checked and it's a Cadillac), and the violin plot helps interpret the width of the distribution also shown by the box plot. The box plot however is cleaner and simpler.
+
+\pagebreak
+## h.
+
+Here's a Cleveland dot plot for mpg:
+
+```{r clevelandmpg}
+Plot(mpg, row.names, quiet=TRUE)
+```
+
+It looks like a Corolla is around 3x more fuel efficient than a Cadillac Fleetwood.
+
+# 2. Asymmetric Distribution Box Plot
+
+Let's load the donations data:
+
+```{r donationsload}
+d<-Read("Donations.csv", quiet=TRUE)
+```
+
+## a.
+
+Here's a VBS of gifts:
+
+```{r giftsbox}
+Plot(Gifts, quiet=TRUE)
+```
+
+## b.
+
+There are a lot of outliers because this is a skewed distribution- most rows are donors who give between 0 and 25 gifts, but there are quite a few rows of donors who give a large number of gifts well separated from the mean.
+
+\pagebreak
+## c.
+
+Here's the adjusted plot:
+
+```{r giftsbox2}
+Plot(Gifts, box.adj=TRUE, quiet=TRUE)
+```
+
+## d.
+
+To adjust the plot, I set `box.adj=TRUE`, which if I'm understanding the VBS paper correctly changes the central measure to the median and uses an adjusted version of the standard deviation. For skewed distributions like this one, this is the better plot.
+
+\pagebreak
+# 3. Maps
+
+I'm using Azerbaijan with country code AZ, reading in the .txt file from geonames.org here. The "complete.cases" row is to remove some pesky missing value rows at the end of my data; I suspect there was some data loading problem due to encoding of city names.
+
+```{r loadmaps}
+d<-Read("cities1000.txt", col.names = c("id","name","ascii_name", "alt_names","latitude","longitude","feature_class","feature", "country.code","cc2","admin1","admin2","admin3","admin4", "population","elevation","dem","timezone","mod_date"), quiet=TRUE)
+cols <- c("name", "longitude", "latitude", "population")
+rows <- d$country.code=="AZ" & d$population > 30000
+d <- d[rows, cols]
+d<-d[complete.cases(d),]
+```
+
+Here I've adapted the code from the book directly to produce the map:
+
+```{r preparemap}
+azerbaijan <- ne_states(country="azerbaijan", returnclass="sf") 
+cities <- st_as_sf(d, coords = c("longitude", "latitude"), crs=st_crs(azerbaijan), remove=FALSE)
+```
+
+Here's the map with just points for each city:
+
+```{r drawmap}
+ggplot() + geom_sf(data=azerbaijan, fill="gray85", color="gray65", size=0.2) + geom_sf(data=cities, size=2) + theme_set(theme_bw()) + labs(x=NULL, y=NULL) + geom_text_repel(data=cities, aes(longitude,latitude, label=name), size=3.25, col="black")
+```
+
+\pagebreak
+And here's the map with each city's size indicated by the bubble on the map:
+```{r drawmap2}
+ggplot() + geom_sf(data=azerbaijan, fill="gray85", color="gray65", size=.2) + geom_sf(aes(size=population), data=cities, alpha=.7) + scale_size_area() + theme_set(theme_bw()) + labs(x=NULL, y=NULL) + geom_text_repel(data=cities, aes(longitude,latitude, label=name), size=2.75, col="black")
+```
+
+\pagebreak
+# 4. Time Series
+
+I have some Hillsboro airport climate data lying around, so let's use that. It's slightly long so I've subset it to the first 2,000 rows and only 3 of the relevant data columns Incidentally the "as.Date" helpfile is the funniest R helpfile I have ever read.
+
+```{r loadclimatedata}
+d<-rd("dailyclimatedata.xlsx", quiet=TRUE)
+d<-Transform(DATE=as.Date(d$DATE,origin = "1899-12-30"), quiet=TRUE)
+d<-d[1:2000,]
+d<-d[,c(1,3,4,5)]
+```
+
+## a. Here's a plot of average daily temperature:
+
+```{r tempplot1}
+Plot(DATE, AverageDryBulbTemp, quiet=TRUE)
+```
+
+\pagebreak
+## b.
+
+These are average temperature, minimum temperature, and maximum temperature by day:
+
+```{r tempplot2}
+myd <- melt(d, id.vars="DATE", variable.name="TempType", value.name="Temp")
+Plot(DATE, Temp, by1=TempType, data=myd, stack=TRUE, quiet=TRUE)
+```
+
+\pagebreak
+
+## c.
+
+My data's not greatly suited to this so it looks a little hideous, but here's the stacked chart:
+
+```{r tempplot3}
+Plot(DATE, c(AverageDryBulbTemp, MaximumDryBulbTemp, MinimumDryBulbTemp), stack=TRUE, quiet=TRUE)
+```
+
+\pagebreak
+## d.
+
+And again with custom colors. I shouldn't be allowed to choose custom colors.
+
+```{r tempplot4}
+Plot(DATE, c(AverageDryBulbTemp, MaximumDryBulbTemp, MinimumDryBulbTemp), stack=TRUE, fill=getColors(c("red", "blue","green")),quiet=TRUE)
+```
+
+
