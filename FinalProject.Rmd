@@ -1,6 +1,6 @@
 ---
 title: "ISQA 521 Final Project"
-author: "Jordan Hilton"
+author: "Skye Gilbreth, Jordan Hilton"
 date: "May 2, 2019"
 output: pdf_document
 ---
@@ -105,15 +105,13 @@ ggplot(filtereddata2, aes(x=white_rating, color=shortname))+geom_line(stat="bin"
 BarChart(shortname, by=winner, data=filtereddata, horiz=TRUE, ylab="Count of Games", stat.x="proportion", xlab="Opening Name",quiet=TRUE)
 ```
 
----most common opening by rating?
 
---- draw rate by opening and rating
 
 # Best Opening for Me
 
 ---highest winrate by rating
 
-```{r winrate by rating}
+```{r winratebyrating}
 options(scipen=999)
 filtereddata$ratingbin<-cut(filtereddata$white_rating, seq(0,3500,500), dig.lab=10)
 ##BarChart(ratingbin, by=winner, by1=shortname, data=filtereddata, horiz=TRUE, ylab="Count of Games", stat.x="proportion", xlab="Opening Name",quiet=TRUE)
@@ -123,10 +121,22 @@ ggplot(filtereddata, aes(x = ratingbin, fill=winner)) +
 ```
 
 
----highest winrate by time control
-
----linechart of performance of top 3 openings by rating
-
 # Shiny Interactive
 
--- highest winrate by binned rating as a shiny
+
+
+### TODO:
+
+1. Shiny interactive - a barchart of frequency and winrate for top 15 openings, with a slider for your rating?
+
+2. Fix winratebyrating chunk - Jordan
+
+3. Add more explanatory text and analysis
+
+4. Add conclusion -(would like it to be based off of winrate by rating)
+
+5. Add following graphics: 
+
+--- draw rate by opening and rating
+
+6. Look over homeworks to see if there are any chart types we think are missing
