@@ -15,7 +15,7 @@ library(reshape2)
 
 # Introduction
 
-I'm a beginner chess player, and I'd like to improve my game a little. I have a data set of 20,000 chess games played on the website lichess, including a computer-identified opening used in each game. The goal of this project is to analyze this set of games to find out more about what openings I should study, by looking at the performance of each opening using this data.
+We're beginner chess players, and we'd like to improve our game a little. We have a data set of 20,000 chess games played on the website lichess, including a computer-identified opening used in each game. The goal of this project is to analyze this set of games to find out more about what openings Iwe should study, by looking at the performance of each opening using this data.
 
 The set is from this kaggle:
 
@@ -23,7 +23,7 @@ https://www.kaggle.com/datasnaek/chess
 
 # Data Load
 
-Let's load the data and take a look at it. I've dropped out some unnecessary columns, including the largest one which is a list of moves for each game.
+Let's load the data and take a look at it. We've dropped out some unnecessary columns, including the largest one which is a list of moves for each game.
 
 ```{r loaddata}
 chessdata <- read.csv("chessdata.csv")
@@ -42,13 +42,23 @@ Let's go over our available fields quickly. We have:
 * white_rating and black_rating, the ELO ratings of the players for the category of game they're playing
 * opening_name, the computer's description of what opening was played
 
+We're now going to create two additional fields by mutation; one, using regular expressions, consolidates categories of openings (so "Queen's Pawn Game: Han Solo Variant | The Coolest Line" will be grouped in with all the other Queen's Pawn games), and one calculates an average of the two players' ratings.
+
 ```{r fixnames}
 chessdata<-mutate(chessdata, shortname=gsub(":.*","",chessdata$opening_name))
 chessdata<-transform(chessdata, shortname=gsub("\\|.*","",chessdata$shortname))
+chessdata<-mutate(chessdata, avgrating=(white_rating+black_rating)/2)
 head(chessdata)
 ```
 
+Who's the highest rated player we have?
 
+```{r highestratedplayer}
+head(sort(chessdata$white_rating, decreasing=TRUE), 1)
+filter(chessdata, white_rating==2700)
+```
+
+The answer is "justicebot", long may he reign, playing the Caro-Kann.
 
 # Exploratory charts
 
@@ -72,7 +82,7 @@ Now let's start with a basic bar chart just to see the relative frequency of the
 BarChart(shortname, data=filtereddata, horiz=TRUE, quiet=TRUE, xlab="Opening", sort="-", ylab="Count of Games")
 ```
 
-The Sicilian Defense (1. e4 c6) is by far the most popular, with an even distribution after that. We're keeping an eye on the Italian Game (1. e4 e5 2. Nf3 Nc6 3. Bc4) since that's my favorite opening, and I'm pleased to see it in 4th place.
+The Sicilian Defense (1. e4 c6) is by far the most popular, with an even distribution after that. We're keeping an eye on the Italian Game (1. e4 e5 2. Nf3 Nc6 3. Bc4) since that's Jordan's favorite opening, and we're pleased to see it in 4th place.
 
 As an excuse to switch to histograms, how about the ratings of the players in this data set?
 
@@ -80,12 +90,14 @@ As an excuse to switch to histograms, how about the ratings of the players in th
 Histogram(white_rating, data=filtereddata, fill="lightgray", quiet=TRUE, xlab="White Player's Rating", ylab="Count of Games")
 ```
 
-This looks like a normal distribution with a slight skew to the left. I'd explain this by saying your default rating is 1500, so there are probably a lot of games by new players at or immediately under 1500. Note the slight uptick at the very top of the range - a buildup of high-rated players.
+This looks like a normal distribution with a slight skew to the left. The default rating is 1500, so there are probably a lot of games by new players at or immediately under 1500. Note the slight uptick at the very top of the range - a buildup of high-rated players.
 
 Are the ratings of the black players any different?
 ```{r ratinghisto2}
 Histogram(black_rating, data=filtereddata, fill="black", quiet=TRUE, xlab="Black Player's Rating", ylab="Count of Games")
 ```
+
+\pagebreak
 
 No, the distribution of ratings for the black players are identical; that's as expected. How long is a normal game?
 
@@ -93,13 +105,18 @@ No, the distribution of ratings for the black players are identical; that's as e
 Histogram(turns, data=filtereddata, bin.width=15, quiet=TRUE, xlab="Number of Turns", ylab="Count of Games")
 ```
 
+It looks like a normal game takes around 50 turns, but there's a long tail of games that go all the way out to 350 moves- those are probably complicated endgames with little advantage where somebody is refusing to resign or accept a draw.
+
+
+Let's take a look at the 4 most frequent openings (couldn't leave out the Italian!). Do any of them get noticeably more frequent in games by higher-rated players, which might indicate that they're just a better opening?
+
 ```{r top4openingratingline}
 top4<-head(names(sort(table(chessdata$shortname), decreasing=TRUE)),4)
 filtereddata2<-filter(chessdata, shortname %in% top4)
 ggplot(filtereddata2, aes(x=white_rating, color=shortname))+geom_line(stat="bin", binwidth=25)+ylim(0,100)
 ```
 
-
+How about the relative win rates of each opening?
 
 ```{r winratebarchart}
 BarChart(shortname, by=winner, data=filtereddata, horiz=TRUE, ylab="Count of Games", stat.x="proportion", xlab="Opening Name",quiet=TRUE)
@@ -112,12 +129,21 @@ BarChart(shortname, by=winner, data=filtereddata, horiz=TRUE, ylab="Count of Gam
 ---highest winrate by rating
 
 ```{r winratebyrating}
-options(scipen=999)
-filtereddata$ratingbin<-cut(filtereddata$white_rating, seq(0,3500,500), dig.lab=10)
+filtereddata$ratingbin<-cut(filtereddata$white_rating, seq(0,3500,500), labels=c("0","1","2","3","4","5","6"))
 ##BarChart(ratingbin, by=winner, by1=shortname, data=filtereddata, horiz=TRUE, ylab="Count of Games", stat.x="proportion", xlab="Opening Name",quiet=TRUE)
 ggplot(filtereddata, aes(x = ratingbin, fill=winner)) +  
         geom_bar(aes(y = (..count..)/sum(..count..)),position="fill") + 
-        scale_y_continuous()+facet_grid(cols=vars(shortname)) ## version 3.0.0
+        scale_y_continuous()+facet_wrap(vars(shortname)) +labs(x="Binned White Rating", y="Proportion of Games")
+```
+
+Note that each opening seems to improve with rating- this is a methodological error because we've used the white player's rating while ignoring the black player's rating, so with a higher rating just comes a higher win rate! Let's switch to the average rating instead:
+
+```{r winratebyrating2}
+filtereddata$ratingbin<-cut(filtereddata$avgrating, seq(0,3500,500), labels=c("0","1","2","3","4","5","6"))
+##BarChart(ratingbin, by=winner, by1=shortname, data=filtereddata, horiz=TRUE, ylab="Count of Games", stat.x="proportion", xlab="Opening Name",quiet=TRUE)
+ggplot(filtereddata, aes(x = ratingbin, fill=winner)) +  
+        geom_bar(aes(y = (..count..)/sum(..count..)),position="fill") + 
+        scale_y_continuous()+facet_wrap(vars(shortname)) +labs(x="Binned White Rating", y="Proportion of Games")
 ```
 
 
