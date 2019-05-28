@@ -146,10 +146,14 @@ ggplot(filtereddata, aes(x = ratingbin, fill=winner)) +
         scale_y_continuous()+facet_wrap(vars(shortname)) +labs(x="Binned White Rating", y="Proportion of Games")
 ```
 
+Here we get to some interesting results. Picking some in particular: the Scotch game and the King's Pawn games are famously sharp, so it doesn't surprise me that they perform well at high and low average rating but poorly in middling ratings. The Four Knights is supposed to be bad, so it makes sense that its performance gets worse at higher ratings.
+
 
 # Shiny Interactive
 
+# Conclusion
 
+We should definitely study the Sicilian, since it is by far the most common opening and it performs well at high ratings. In the meantime, though, sticking with the Italian looks like it should work out just fine; it performs decently at all rating levels and doesn't get too drawish at the high rating levels.
 
 ### TODO:
 
