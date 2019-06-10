@@ -76,6 +76,11 @@ top15openings<-head(names(sort(table(chessdata$shortname), decreasing=TRUE)),15)
 filtereddata<-filter(chessdata, shortname %in% top15openings)
 ```
 
+```{r}
+#Export altered data to a CSV file to be used by the Shiny app.
+write.csv(filtereddata, "data/filtereddata.csv")
+```
+
 Now let's start with a basic bar chart just to see the relative frequency of these top 15 openings.
 
 ```{r basicbarchart}
