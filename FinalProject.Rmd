@@ -42,12 +42,18 @@ Let's go over our available fields quickly. We have:
 * white_rating and black_rating, the ELO ratings of the players for the category of game they're playing
 * opening_name, the computer's description of what opening was played
 
-We're now going to create two additional fields by mutation; one, using regular expressions, consolidates categories of openings (so "Queen's Pawn Game: Han Solo Variant | The Coolest Line" will be grouped in with all the other Queen's Pawn games), and one calculates an average of the two players' ratings.
+We're now going to create two additional fields by mutation; one, using regular expressions, consolidates categories of openings (so "Queen's Pawn Game: Han Solo Variant | The Coolest Line" will be grouped in with all the other Queen's Pawn games), and one calculates an average of the two players' ratings. We're also going to use factors to categorize the games by how much time was on the clock, into the categories "bullet", "blitz", and "classical".
 
-```{r fixnames}
+```{r processing}
+## fix the names of the openings
 chessdata<-mutate(chessdata, shortname=gsub(":.*","",chessdata$opening_name))
 chessdata<-transform(chessdata, shortname=gsub("\\|.*","",chessdata$shortname))
+## create an average rating for the game
 chessdata<-mutate(chessdata, avgrating=(white_rating+black_rating)/2)
+## classify the game length
+chessdata<-mutate(chessdata, starttime=gsub("\\+.*","",chessdata$increment_code))
+chessdata$gametype<-factor(chessdata$starttime)
+levels(chessdata$gametype)<-list(Bullet=c("0","1","2"), Blitz=c("3","4","5","6","7","8","9"), Classical=c("10","11","12","13","14","15","16","17","18","19","20","21","25","29","30","35","40","45","60","90","120","150","180"))
 head(chessdata)
 ```
 
@@ -129,7 +135,13 @@ How about the relative win rates of each opening?
 BarChart(shortname, by=winner, data=filtereddata, horiz=TRUE, ylab="Count of Games", stat.x="proportion", xlab="Opening Name",quiet=TRUE)
 ```
 
+Lastly, how often do the top 4 ratings get played in each type of opening?
 
+```{r timecontrolbarchart}
+BarChart(gametype, by=shortname, data=filtereddata2, horiz=TRUE, ylab="Game Type", stat.x="proportion", xlab="Opening Proportion",quiet=TRUE)
+```
+
+We can see that the French and the Queen's Pawn Game are more popular in short time controls and the Sicilian more popular in longer time controls. 
 
 # Best Opening for Me
 
