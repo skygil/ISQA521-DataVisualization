@@ -92,6 +92,9 @@ Now let's start with a basic bar chart just to see the relative frequency of the
 ```{r basicbarchart}
 BarChart(shortname, data=filtereddata, horiz=TRUE, quiet=TRUE, xlab="Opening", sort="-", ylab="Count of Games")
 ```
+```{r}
+bc(shortname,data=filtereddata, horiz=TRUE)
+```
 
 The Sicilian Defense (1. e4 c6) is by far the most popular, with an even distribution after that. We're keeping an eye on the Italian Game (1. e4 e5 2. Nf3 Nc6 3. Bc4) since that's Jordan's favorite opening, and we're pleased to see it in 4th place.
 
@@ -130,6 +133,9 @@ ggplot(filtereddata2, aes(x=white_rating, color=shortname))+geom_line(stat="bin"
 ```
 
 How about the relative win rates of each opening?
+```{r}
+bc(shortname, data=filtereddata2)
+```
 
 ```{r winratebarchart}
 BarChart(shortname, by=winner, data=filtereddata, horiz=TRUE, ylab="Count of Games", stat.x="proportion", xlab="Opening Name",quiet=TRUE)
@@ -169,6 +175,12 @@ Here we get to some interesting results. Picking some in particular: the Scotch 
 
 
 # Shiny Interactive
+We did a thing! We built a very cool app with Shiny Interactive, where you can play with the colors and bin width of not one, but two graphs! Not only can you play with these charts, but you can also see the retroactive ggplot2 code developed for your chosen customizations! There are other neat surprises you will find through our app, but we will not spoil the surprise for you. So head on over to our app, by click on the following URL, and have fun!
+
+https://skygil.shinyapps.io/Game_of_Chess_Final/
+
+
+
 
 # Conclusion
 

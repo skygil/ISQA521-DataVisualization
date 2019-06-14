@@ -1,0 +1,13 @@
+name: Game_of_Chess_Final
+title: Game_of_Chess_Final
+username:
+account: skygil
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 980838
+bundleId: 2152798
+url: https://skygil.shinyapps.io/Game_of_Chess_Final/
+when: 1560488627.31789
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: FinalProject.pdf|FinalProject.Rmd|HW1.pdf|HW1.Rmd|HW2.pdf|HW2.Rmd|HW3.pdf|HW3.Rmd|Syllabus521.docx|data/chessdata.csv|data/filtereddata2.csv
