@@ -87,17 +87,16 @@ filtereddata<-filter(chessdata, shortname %in% top15openings)
 write.csv(filtereddata, "data/filtereddata.csv")
 ```
 
+\pagebreak
 Now let's start with a basic bar chart just to see the relative frequency of these top 15 openings.
 
 ```{r basicbarchart}
 BarChart(shortname, data=filtereddata, horiz=TRUE, quiet=TRUE, xlab="Opening", sort="-", ylab="Count of Games")
 ```
-```{r}
-bc(shortname,data=filtereddata, horiz=TRUE)
-```
 
 The Sicilian Defense (1. e4 c6) is by far the most popular, with an even distribution after that. We're keeping an eye on the Italian Game (1. e4 e5 2. Nf3 Nc6 3. Bc4) since that's Jordan's favorite opening, and we're pleased to see it in 4th place.
 
+\pagebreak
 As an excuse to switch to histograms, how about the ratings of the players in this data set?
 
 ```{r ratinghisto}
@@ -132,16 +131,20 @@ filtereddata2<-filter(chessdata, shortname %in% top4)
 ggplot(filtereddata2, aes(x=white_rating, color=shortname))+geom_line(stat="bin", binwidth=25)+ylim(0,100)
 ```
 
+The Sicilian Defense is roughly as frequent as other openings at low ratings but quickly gains and retains dominance as rating increases. This probably indicates that it's worth study.
+
+\pagebreak
+
 How about the relative win rates of each opening?
-```{r}
-bc(shortname, data=filtereddata2)
-```
 
 ```{r winratebarchart}
 BarChart(shortname, by=winner, data=filtereddata, horiz=TRUE, ylab="Count of Games", stat.x="proportion", xlab="Opening Name",quiet=TRUE)
 ```
 
-Lastly, how often do the top 4 ratings get played in each type of opening?
+It looks like the Sicilian is very good for black, but the Bishop's opening and the English are good for white. 
+
+\pagebreak
+Lastly, how often do the top 4 openings get played in each time control?
 
 ```{r timecontrolbarchart}
 BarChart(gametype, by=shortname, data=filtereddata2, horiz=TRUE, ylab="Game Type", stat.x="proportion", xlab="Opening Proportion",quiet=TRUE)
@@ -149,9 +152,9 @@ BarChart(gametype, by=shortname, data=filtereddata2, horiz=TRUE, ylab="Game Type
 
 We can see that the French and the Queen's Pawn Game are more popular in short time controls and the Sicilian more popular in longer time controls. 
 
-# Best Opening for Me
+# Best Opening for Us
 
----highest winrate by rating
+Let's do a trellis plot and look at how each opening's win rate changes by rating.
 
 ```{r winratebyrating}
 filtereddata$ratingbin<-cut(filtereddata$white_rating, seq(0,3500,500), labels=c("0","1","2","3","4","5","6"))
@@ -168,10 +171,10 @@ filtereddata$ratingbin<-cut(filtereddata$avgrating, seq(0,3500,500), labels=c("0
 ##BarChart(ratingbin, by=winner, by1=shortname, data=filtereddata, horiz=TRUE, ylab="Count of Games", stat.x="proportion", xlab="Opening Name",quiet=TRUE)
 ggplot(filtereddata, aes(x = ratingbin, fill=winner)) +  
         geom_bar(aes(y = (..count..)/sum(..count..)),position="fill") + 
-        scale_y_continuous()+facet_wrap(vars(shortname)) +labs(x="Binned White Rating", y="Proportion of Games")
+        scale_y_continuous()+facet_wrap(vars(shortname)) +labs(x="Binned Average Rating", y="Proportion of Games")
 ```
 
-Here we get to some interesting results. Picking some in particular: the Scotch game and the King's Pawn games are famously sharp, so it doesn't surprise me that they perform well at high and low average rating but poorly in middling ratings. The Four Knights is supposed to be bad, so it makes sense that its performance gets worse at higher ratings.
+Here we get to some interesting results. Picking some in particular: the Scotch game and the King's Pawn games are famously sharp, so it doesn't surprise us that they perform well at high and low average rating but poorly in middling ratings. The Four Knights is supposed to be bad, so it makes sense that its performance gets worse at higher ratings. Remember that when looking at overall winrates the Bishop's Opening was supposed to be good for white- since it gets worse at high ratings, we probably shouldn't work with that one.
 
 
 # Shiny Interactive
@@ -185,20 +188,3 @@ https://skygil.shinyapps.io/Game_of_Chess_Final/
 # Conclusion
 
 We should definitely study the Sicilian, since it is by far the most common opening and it performs well at high ratings. In the meantime, though, sticking with the Italian looks like it should work out just fine; it performs decently at all rating levels and doesn't get too drawish at the high rating levels.
-
-### TODO:
-
-1. Shiny interactive - a barchart of frequency and winrate for top 15 openings, with a slider for your rating? Needs both a barchart and histogram. Might just include the URL for final document for proff. to access.
-
-2. Fix winratebyrating chunk - Jordan
-
-3. Add more explanatory text and analysis
-
-4. Add conclusion -(would like it to be based off of winrate by rating)
-
-5. Add following graphics: 
-
---- draw rate by opening and rating
-  maybe an overlapping hs? barplot? Should we include something with factors or bubble plots?
-
-6. Look over homeworks to see if there are any chart types we think are missing
